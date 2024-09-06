@@ -153,7 +153,7 @@ func walk(root, moduleName string) (map[string]PackageDesc, error) {
 				return fmt.Errorf("type %q in %q is not an interface", lookup.Type(), fp)
 			}
 
-			for i := 0; i < interfaceType.NumMethods(); i++ {
+			for i := range interfaceType.NumMethods() {
 				method := interfaceType.Method(i)
 
 				interfaceDesc.Methods = append(interfaceDesc.Methods, method)
@@ -197,7 +197,7 @@ func getTupleImports(tuples ...*types.Tuple) []string {
 	var imports []string
 
 	for _, tuple := range tuples {
-		for i := 0; i < tuple.Len(); i++ {
+		for i := range tuple.Len() {
 			imports = append(imports, getTypeImports(tuple.At(i).Type())...)
 		}
 	}
