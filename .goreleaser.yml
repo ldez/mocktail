@@ -1,3 +1,4 @@
+version: 2
 project_name: mocktail
 
 builds:
@@ -50,7 +51,7 @@ brews:
     commit_author:
       name: traefiker
       email: 30906710+traefiker@users.noreply.github.com
-    folder: Formula
+    directory: Formula
     homepage: https://github.com/traefik/mocktail
     description: |
       Naive code generator that creates mock implementation using testify.mock.
