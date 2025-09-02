@@ -1,9 +1,41 @@
 version: "2"
 
-run:
-  timeout: 10m
+formatters:
+  enable:
+    - gci
+    - gofumpt
+
+  settings:
+    gofumpt:
+      extra-rules: true
 
 linters:
+  default: all
+  disable:
+    - sqlclosecheck # not relevant (SQL)
+    - rowserrcheck # not relevant (SQL)
+    - cyclop # duplicate of gocyclo
+    - lll
+    - dupl
+    - wsl # deprecated
+    - nlreturn
+    - mnd
+    - err113
+    - wrapcheck
+    - exhaustive
+    - exhaustruct
+    - testpackage
+    - tparallel
+    - paralleltest
+    - prealloc
+    - forcetypeassert
+    - bodyclose # Too many false positives: https://github.com/timakin/bodyclose/issues/30
+    - varnamelen
+    - nilnil
+    - ireturn
+    - errchkjson
+    - contextcheck
+
   settings:
     govet:
       enable-all: true
@@ -50,33 +82,9 @@ linters:
       excludes:
         - G304
         - G306
-
-  default: all
-  disable:
-    - sqlclosecheck # not relevant (SQL)
-    - rowserrcheck # not relevant (SQL)
-    - cyclop # duplicate of gocyclo
-    - lll
-    - dupl
-    - wsl
-    - wsl_v5
-    - nlreturn
-    - mnd
-    - err113
-    - wrapcheck
-    - exhaustive
-    - exhaustruct
-    - testpackage
-    - tparallel
-    - paralleltest
-    - prealloc
-    - forcetypeassert
-    - bodyclose # Too many false positives: https://github.com/timakin/bodyclose/issues/30
-    - varnamelen
-    - nilnil
-    - ireturn
-    - errchkjson
-    - contextcheck
+    wsl_v5:
+      disable:
+        - decl
 
   exclusions:
     warn-unused: true
@@ -88,15 +96,6 @@ linters:
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
-
-formatters:
-  enable:
-    - gci
-    - gofumpt
-
-  settings:
-    gofumpt:
-      extra-rules: true
 
 output:
   show-stats: true

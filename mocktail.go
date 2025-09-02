@@ -54,6 +54,7 @@ func main() {
 
 	var exported bool
 	var templateFile string
+
 	flag.BoolVar(&exported, "e", false, "generate exported mocks")
 	flag.StringVar(&templateFile, "template", "", "path to custom template file (uses embedded template if not specified)")
 	flag.Parse()
@@ -241,11 +242,13 @@ func getTypeImports(t types.Type) []string {
 		for f := range v.Fields() {
 			imports = append(imports, getTypeImports(f.Type())...)
 		}
+
 		return imports
 
 	case *types.Map:
 		imports := getTypeImports(v.Key())
 		imports = append(imports, getTypeImports(v.Elem())...)
+
 		return imports
 
 	case *types.Named:

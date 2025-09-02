@@ -107,21 +107,25 @@ func (s Syrup) Call(writer io.Writer, methods []*types.Func) error {
 
 	// Generate type parameter declarations and usage
 	typeParamsDecl := ""
+
 	typeParamsUse := s.getTypeParamsUse()
 	if s.TypeParams != nil && s.TypeParams.Len() > 0 {
 		var params []string
 		var names []string
+
 		for i := range s.TypeParams.Len() {
 			tp := s.TypeParams.At(i)
 			params = append(params, tp.Obj().Name()+" "+tp.Constraint().String())
 			names = append(names, tp.Obj().Name())
 		}
+
 		typeParamsDecl = "[" + strings.Join(params, ", ") + "]"
 		typeParamsUse = "[" + strings.Join(names, ", ") + "]"
 	}
 
 	// Generate return parameters
 	var returnParams []Parameter
+
 	hasReturns := results.Len() > 0
 	for i := range results.Len() {
 		rName := string(rune(int('a') + i))
@@ -134,6 +138,7 @@ func (s Syrup) Call(writer io.Writer, methods []*types.Func) error {
 	// Generate input parameters for TypedRun
 	var inputParams []Parameter
 	var pos int
+
 	for i := range params.Len() {
 		param := params.At(i)
 		pType := param.Type()
@@ -153,11 +158,13 @@ func (s Syrup) Call(writer io.Writer, methods []*types.Func) error {
 
 	// Generate methods data
 	var methodData []Method
+
 	for _, method := range methods {
 		sign := method.Type().(*types.Signature)
 		mParams := sign.Params()
 
 		var paramData []Parameter
+
 		for i := range mParams.Len() {
 			param := mParams.At(i)
 			isContext := param.Type().String() == contextType
@@ -206,8 +213,11 @@ func (s Syrup) MockMethod(writer io.Writer) error {
 
 	// Generate parameter data (including non-context params for On methods)
 	var paramsData []Parameter
-	var callArgs []string   // For _m.Called() and _rf() calls - always use parameter names
+
+	var callArgs []string // For _m.Called() and _rf() calls - always use parameter names
+
 	var onCallArgs []string // For _m.Mock.On() calls - use mock.Anything for functions
+
 	for i := range params.Len() {
 		param := params.At(i)
 		isContext := param.Type().String() == contextType
@@ -237,6 +247,7 @@ func (s Syrup) MockMethod(writer io.Writer) error {
 
 	// Generate result data
 	var resultsData []Result
+
 	for i := range results.Len() {
 		rType := results.At(i).Type()
 		resultsData = append(resultsData, Result{
@@ -268,6 +279,7 @@ func (s Syrup) WriteImports(writer io.Writer, descPkg PackageDesc) error {
 		Name:    descPkg.Pkg.Name(),
 		Imports: quickGoImports(descPkg),
 	}
+
 	return s.Template.ExecuteTemplate(writer, "imports", data)
 }
 
@@ -281,14 +293,17 @@ func (s Syrup) WriteMockBase(writer io.Writer, interfaceDesc InterfaceDesc, expo
 	// Generate type parameter declarations and usage
 	typeParamsDecl := ""
 	typeParamsUse := ""
+
 	if interfaceDesc.TypeParams != nil && interfaceDesc.TypeParams.Len() > 0 {
 		var params []string
 		var names []string
+
 		for i := range interfaceDesc.TypeParams.Len() {
 			tp := interfaceDesc.TypeParams.At(i)
 			params = append(params, tp.Obj().Name()+" "+tp.Constraint().String())
 			names = append(names, tp.Obj().Name())
 		}
+
 		typeParamsDecl = "[" + strings.Join(params, ", ") + "]"
 		typeParamsUse = "[" + strings.Join(names, ", ") + "]"
 	}
@@ -299,6 +314,7 @@ func (s Syrup) WriteMockBase(writer io.Writer, interfaceDesc InterfaceDesc, expo
 		TypeParamsDecl:    typeParamsDecl,
 		TypeParamsUse:     typeParamsUse,
 	}
+
 	return s.Template.ExecuteTemplate(writer, "mockBase", data)
 }
 
@@ -309,10 +325,12 @@ func (s Syrup) getTypeParamsUse() string {
 	}
 
 	var names []string
+
 	for i := range s.TypeParams.Len() {
 		tp := s.TypeParams.At(i)
 		names = append(names, tp.Obj().Name())
 	}
+
 	return "[" + strings.Join(names, ", ") + "]"
 }
 
@@ -380,6 +398,7 @@ func (s Syrup) getNamedTypeName(t *types.Named) string {
 		if t.Obj().Pkg().Path() == s.PkgPath {
 			return t.Obj().Name()
 		}
+
 		return t.Obj().Pkg().Name() + "." + t.Obj().Name()
 	}
 
@@ -389,11 +408,13 @@ func (s Syrup) getNamedTypeName(t *types.Named) string {
 	if i > -1 {
 		name = name[i+1:]
 	}
+
 	return name
 }
 
 func (s Syrup) getChanTypeName(t *types.Chan) string {
 	var typ string
+
 	switch t.Dir() {
 	case types.SendRecv:
 		typ = "chan"
@@ -408,6 +429,7 @@ func (s Syrup) getChanTypeName(t *types.Chan) string {
 
 func (s Syrup) createFuncSignature(params, results *types.Tuple) string {
 	fnSign := "func("
+
 	for i := range params.Len() {
 		param := params.At(i)
 		if param.Type().String() == contextType {
@@ -420,17 +442,21 @@ func (s Syrup) createFuncSignature(params, results *types.Tuple) string {
 			fnSign += ", "
 		}
 	}
+
 	fnSign += ") "
 
 	if results != nil {
 		fnSign += "("
+
 		for i := range results.Len() {
 			rType := results.At(i).Type()
+
 			fnSign += s.getTypeName(rType, false)
 			if i+1 < results.Len() {
 				fnSign += ", "
 			}
 		}
+
 		fnSign += ")"
 	}
 
@@ -454,6 +480,7 @@ func quickGoImports(descPkg PackageDesc) []string {
 		if imports[i] == "" {
 			return strings.Contains(imports[j], ".")
 		}
+
 		if imports[j] == "" {
 			return !strings.Contains(imports[i], ".")
 		}
@@ -461,6 +488,7 @@ func quickGoImports(descPkg PackageDesc) []string {
 		if strings.Contains(imports[i], ".") && !strings.Contains(imports[j], ".") {
 			return false
 		}
+
 		if !strings.Contains(imports[i], ".") && strings.Contains(imports[j], ".") {
 			return true
 		}
@@ -475,6 +503,7 @@ func getParamName(tVar *types.Var, i int) string {
 	if tVar.Name() == "" {
 		return fmt.Sprintf("%sParam", string(rune('a'+i)))
 	}
+
 	return tVar.Name()
 }
 
@@ -482,6 +511,7 @@ func getResultName(tVar *types.Var, i int) string {
 	if tVar.Name() == "" {
 		return fmt.Sprintf("_r%s%d", string(rune('a'+i)), i)
 	}
+
 	return tVar.Name()
 }
 

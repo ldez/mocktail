@@ -58,6 +58,7 @@ func createTestSyrup(t *testing.T, templateContent string) *Syrup {
 	})
 
 	var tmpl *template.Template
+
 	var err error
 	if templateContent == "" {
 		// Use embedded template
@@ -65,6 +66,7 @@ func createTestSyrup(t *testing.T, templateContent string) *Syrup {
 	} else {
 		tmpl, err = base.Parse(templateContent)
 	}
+
 	require.NoError(t, err)
 
 	// Create Syrup instance
@@ -106,6 +108,7 @@ func createSimpleTestMethods() []*types.Func {
 
 func TestSyrup_TemplateExecution(t *testing.T) {
 	t.Parallel()
+
 	templates := map[string]string{
 		"default": "", // Use embedded template
 		"custom_comment": `{{define "imports"}}// CUSTOM HEADER COMMENT
@@ -233,7 +236,9 @@ func (_m *{{ .InterfaceName | ToGoCamel }}Mock) {{ .MethodName }}() { _m.Called(
 			// Test Call method
 			t.Run("Call", func(t *testing.T) {
 				t.Parallel()
+
 				var buffer bytes.Buffer
+
 				err := syrup.Call(&buffer, testMethods)
 
 				if tt.expectError {
@@ -242,6 +247,7 @@ func (_m *{{ .InterfaceName | ToGoCamel }}Mock) {{ .MethodName }}() { _m.Called(
 				}
 
 				require.NoError(t, err)
+
 				output := buffer.String()
 				assert.NotEmpty(t, output)
 				tt.assertCallFunc(t, output)
@@ -250,7 +256,9 @@ func (_m *{{ .InterfaceName | ToGoCamel }}Mock) {{ .MethodName }}() { _m.Called(
 			// Test MockMethod
 			t.Run("MockMethod", func(t *testing.T) {
 				t.Parallel()
+
 				var buffer bytes.Buffer
+
 				err := syrup.MockMethod(&buffer)
 
 				if tt.expectError {
@@ -259,6 +267,7 @@ func (_m *{{ .InterfaceName | ToGoCamel }}Mock) {{ .MethodName }}() { _m.Called(
 				}
 
 				require.NoError(t, err)
+
 				output := buffer.String()
 				assert.NotEmpty(t, output)
 				tt.assertMockFunc(t, output)
@@ -269,6 +278,7 @@ func (_m *{{ .InterfaceName | ToGoCamel }}Mock) {{ .MethodName }}() { _m.Called(
 
 func TestSyrup_TemplateErrorHandling(t *testing.T) {
 	t.Parallel()
+
 	errorTemplates := map[string]string{
 		"syntax_error": `{{define "imports"}}{{ invalid syntax {{end}}`,
 		"missing_combinedCall": `{{define "imports"}}package {{ .Name }}{{end}}
@@ -316,7 +326,7 @@ func TestSyrup_TemplateErrorHandling(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			// Create a dummy method and signature for error testing
+			// Create a fake method and signature for error testing
 			stringType := types.Typ[types.String]
 			params := types.NewTuple(types.NewParam(0, nil, "test", stringType))
 			signature := types.NewSignatureType(nil, nil, nil, params, nil, false)
@@ -332,6 +342,7 @@ func TestSyrup_TemplateErrorHandling(t *testing.T) {
 			if err != nil {
 				require.Error(t, err)
 				assert.ErrorContains(t, err, tt.errorContains)
+
 				return
 			}
 
@@ -347,6 +358,7 @@ func TestSyrup_TemplateErrorHandling(t *testing.T) {
 			// Test Call method if requested
 			if tt.testCall {
 				var buffer bytes.Buffer
+
 				err = syrup.Call(&buffer, createSimpleTestMethods())
 				if tt.expectError {
 					require.Error(t, err)
@@ -359,6 +371,7 @@ func TestSyrup_TemplateErrorHandling(t *testing.T) {
 			// Test MockMethod if requested
 			if tt.testMock {
 				var buffer bytes.Buffer
+
 				err = syrup.MockMethod(&buffer)
 				if tt.expectError {
 					require.Error(t, err)
