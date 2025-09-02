@@ -40,7 +40,7 @@ go install github.com/paperballs/mocktail@latest
 
 You can use pre-compiled binaries:
 
-* To get the binary just download the latest release for your OS/Arch from [the releases page](https://github.com/paperballs/mocktail/releases)
+* To get the binary, download the latest release for your OS/Arch from [the release page](https://github.com/paperballs/mocktail/releases)
 * Unzip the archive.
 * Add `mocktail` in your `PATH`.
 
@@ -102,7 +102,7 @@ func TestMock(t *testing.T) {
 
 ## Exportable Mocks
 
-If you need to use your mocks in external packages just add flag `-e`:
+If you need to use your mocks in external packages add flag `-e`:
 
 ```shell
 mocktail -e
